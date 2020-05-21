@@ -1,0 +1,33 @@
+{
+  "name": "hexletprj2",
+  "version": "1.0.0",
+  "description": "genDiff",
+  "main": "bin/genDiff.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "genDiff": "bin/genDiff.js"
+  },
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/evgeniya-osmakova/frontend-project-lvl2.git"
+  },
+  "keywords": [
+    "hexlet"
+  ],
+  "author": "Evgeniya Osmakova",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/evgeniya-osmakova/frontend-project-lvl2/issues"
+  },
+  "homepage": "https://github.com/evgeniya-osmakova/frontend-project-lvl2#readme",
+  "dependencies": {
+    "commander": "^5.1.0",
+    "lodash": "^4.17.15"
+  },
+  "devDependencies": {
+    "eslint": "^6.8.0",
+    "eslint-config-airbnb-base": "^14.1.0",
+    "eslint-plugin-import": "^2.20.2"
+  }
+}
