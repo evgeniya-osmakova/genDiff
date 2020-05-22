@@ -7,22 +7,22 @@
     "test": "npx -n --experimental-vm-modules jest",
     "genDiff": "bin/genDiff.js"
   },
-  "jest": {
-    "testEnvironment": "node",
-    "transform": {}
-  },
-  "type": "module",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/evgeniya-osmakova/frontend-project-lvl2.git"
   },
   "keywords": [
-    "hexlet"
+    "JSON"
   ],
   "author": "Evgeniya Osmakova",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/evgeniya-osmakova/frontend-project-lvl2/issues"
+  },
+  "type": "module",
+  "jest": {
+    "testEnvironment": "node",
+    "transform": {}
   },
   "homepage": "https://github.com/evgeniya-osmakova/frontend-project-lvl2#readme",
   "dependencies": {
@@ -31,9 +31,11 @@
     "lodash": "^4.17.15"
   },
   "devDependencies": {
+    "debug": "^4.1.1",
     "eslint": "^6.8.0",
     "eslint-config-airbnb-base": "^14.1.0",
     "eslint-plugin-import": "^2.20.2",
+    "eslint-plugin-jest": "^23.13.1",
     "jest": "^26.0.1",
     "jest-cli": "^26.0.1"
   }
