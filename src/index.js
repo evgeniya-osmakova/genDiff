@@ -1,33 +1,58 @@
-import fs from 'fs';
 import _ from 'lodash';
+import parse from './parsers.js';
+import formatDiff from './formatters/index.js';
 
-const findDiff = (pathToFile1, pathToFile2) => {
-  const diff = ['{'];
-  const json1 = fs.readFileSync(pathToFile1, 'utf-8');
-  const json2 = fs.readFileSync(pathToFile2, 'utf-8');
-  const data1 = JSON.parse(json1);
-  const data2 = JSON.parse(json2);
-  const keys1 = Object.keys(data1);
-  const keys2 = Object.keys(data2);
-  keys2.forEach((key) => {
-    if (_.has(data1, key)) {
-      if (data1[key] === data2[key]) {
-        diff.push(`   ${key}: ${data1[key]}`);
+const makeArrFromChildren = (elem) => {
+  if (elem instanceof Object) {
+    const keys = Object.keys(elem);
+    return keys.map((key) => ({ name: key, status: 'unchanged', value: makeArrFromChildren(elem[key]) }));
+  }
+  return [elem];
+};
+
+const prepareKeys = (beforeValue, afterValue) => {
+  const beforeValueKeys = Object.keys(beforeValue);
+  const afterValueKeys = Object.keys(afterValue);
+  const allSortedUniqKeys = _.uniq([...beforeValueKeys, ...afterValueKeys]).sort();
+  return allSortedUniqKeys;
+};
+
+const makeDiffArr = (keys, beforeData, afterData) => {
+  const diff = [];
+  keys.forEach((key) => {
+    if (_.has(beforeData, key) && _.has(afterData, key)) {
+      const beforeValue = beforeData[key];
+      const afterValue = afterData[key];
+      if (beforeValue instanceof Object && afterValue instanceof Object) {
+        const allSortedUniqKeys = prepareKeys(beforeValue, afterValue);
+        diff.push({
+          name: key,
+          status: 'unchanged',
+          value: makeDiffArr(allSortedUniqKeys, beforeValue, afterValue),
+        });
+      } else if (beforeValue === afterValue) {
+        diff.push({ name: key, status: 'unchanged', value: makeArrFromChildren(beforeValue) });
       } else {
-        diff.push(` + ${key}: ${data2[key]}`);
-        diff.push(` - ${key}: ${data1[key]}`);
+        diff.push({ name: key, status: 'added', value: makeArrFromChildren(afterValue) });
+        diff.push({ name: key, status: 'deleted', value: makeArrFromChildren(beforeValue) });
       }
+    } else if (_.has(afterData, key)) {
+      const afterValue = afterData[key];
+      diff.push({ name: key, status: 'added', value: makeArrFromChildren(afterValue) });
     } else {
-      diff.push(` + ${key}: ${data2[key]}`);
+      const beforeValue = beforeData[key];
+      diff.push({ name: key, status: 'deleted', value: makeArrFromChildren(beforeValue) });
     }
   });
-  keys1.forEach((key) => {
-    if (!_.has(data2, key)) {
-      diff.push(` - ${key}: ${data1[key]}`);
-    }
-  });
-  diff.push('}');
-  return diff.join('\n');
+  return diff;
+};
+
+const findDiff = (pathToBeforeFile, pathToAfterFile, format) => {
+  const parsedDataBeforeFile = parse(pathToBeforeFile);
+  const parsedDataAfterFile = parse(pathToAfterFile);
+  const allSortedUniqKeys = prepareKeys(parsedDataBeforeFile, parsedDataAfterFile);
+  const diff = makeDiffArr(allSortedUniqKeys, parsedDataBeforeFile, parsedDataAfterFile);
+  return formatDiff(diff, format);
 };
 
 export default findDiff;

@@ -8,12 +8,30 @@ const __filename = fileURLToPath(import.meta.url);
 
 const __dirname = dirname(__filename);
 
-const getPath = (filePath) => path.join(__dirname, '..', '__fixtures__', filePath);
+const getFixturePath = (filePath) => path.join(__dirname, '..', '__fixtures__', filePath);
 
-test('genDiff', () => {
-  const pathToFile1 = getPath('before.json');
-  const pathToFile2 = getPath('after.json');
-  const pathToResultFile = getPath('result');
+const testData1 = [
+  ['json', 'beforeJSON.json', 'afterYAML.yaml', 'jsonResult.txt'],
+  ['stylish', 'beforeYAML.yml', 'afterINI.ini', 'stylishResult.txt'],
+  ['plain', 'beforeINI.ini', 'afterJSON.json', 'plainResult.txt']
+]
+
+test.each(testData1)('test %s format', (format, fileNameOfBeforeFile, fileNameOfAfterFile, fileNameOfResultFile) => {
+  const pathToBeforeFile = getFixturePath(fileNameOfBeforeFile);
+  const pathToAfterFile2 = getFixturePath(fileNameOfAfterFile);
+  const pathToResultFile = getFixturePath(fileNameOfResultFile);
   const result = fs.readFileSync(pathToResultFile,'utf-8').trim();
-  expect(findDiff(pathToFile1, pathToFile2)).toBe(result);
+  expect(findDiff(pathToBeforeFile, pathToAfterFile2, format)).toBe(result);
+});
+
+test('wrong extname', () => {
+  const pathToBeforeFile = getFixturePath('stylishResult.txt');
+  const pathToAfterFile2 = getFixturePath('stylishResult.txt');
+  expect(() => findDiff(pathToBeforeFile, pathToAfterFile2, 'plain')).toThrowError();
+});
+
+test('wrong format', () => {
+  const pathToBeforeFile = getFixturePath('beforeJSON.json');
+  const pathToAfterFile2 = getFixturePath('afterJSON.json');
+  expect(() => findDiff(pathToBeforeFile, pathToAfterFile2, 'undefined')).toThrowError();
 });
