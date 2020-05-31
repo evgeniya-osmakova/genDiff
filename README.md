@@ -6,6 +6,17 @@
 
 <a href="https://github.com/evgeniya-osmakova/frontend-project-lvl2/actions"><img src="https://github.com/evgeniya-osmakova/frontend-project-lvl1/workflows/Node%20CI/badge.svg" /></a>
 
-Demo:
+Demo: flat JSON, default(stylish) format:
 <a href="https://asciinema.org/a/m0ue5wTLG1G48pT7u6PMBEXhf" target="_blank"><img src="https://asciinema.org/a/m0ue5wTLG1G48pT7u6PMBEXhf.svg" /></a>
 
+Demo: recursion JSON, default(stylish) format:
+<a href="https://asciinema.org/a/0WBe4xA7tUsIs7Uu33QStXAnQ" target="_blank"><img src="https://asciinema.org/a/0WBe4xA7tUsIs7Uu33QStXAnQ.svg" /></a>
+
+Demo: recursion JSON, stylish format:
+<a href="https://asciinema.org/a/YEIvTPpaKHphC7y6wySfyOyiW" target="_blank"><img src="https://asciinema.org/a/YEIvTPpaKHphC7y6wySfyOyiW.svg" /></a>
+
+Demo: recursion YAML, plain format:
+<a href="https://asciinema.org/a/FA6o087DvuEaEureGLjAPcoTx" target="_blank"><img src="https://asciinema.org/a/FA6o087DvuEaEureGLjAPcoTx.svg" /></a>
+
+Demo: recursion INI, json format:
+<a href="https://asciinema.org/a/H6wBTVc6t1G00AlMdFrsWHqiI" target="_blank"><img src="https://asciinema.org/a/H6wBTVc6t1G00AlMdFrsWHqiI.svg" /></a>
