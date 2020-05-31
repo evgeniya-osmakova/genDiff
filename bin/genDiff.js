@@ -12,3 +12,5 @@ program
     console.log(findDiff(pathToFile1, pathToFile2, program.format));
   })
   .parse(process.argv);
+
+export default findDiff;
