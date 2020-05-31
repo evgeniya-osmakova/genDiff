@@ -2,50 +2,48 @@ import _ from 'lodash';
 import parse from './parsers.js';
 import formatDiff from './formatters/index.js';
 
-const makeArrFromChildren = (elem) => {
-  if (elem instanceof Object) {
-    const keys = Object.keys(elem);
-    return keys.map((key) => ({ name: key, status: 'unchanged', value: makeArrFromChildren(elem[key]) }));
+const makeArrFromChildren = (name, status, children) => {
+  const keys = Object.keys(children);
+  if (children instanceof Object) {
+    return keys.map((key) => (
+      { name, status, children: makeArrFromChildren(key, 'unchanged', children[key]) }));
   }
-  return [elem];
+  return [{ name, status, value: children }];
 };
 
 const prepareKeys = (beforeValue, afterValue) => {
   const beforeValueKeys = Object.keys(beforeValue);
   const afterValueKeys = Object.keys(afterValue);
-  const allSortedUniqKeys = _.uniq([...beforeValueKeys, ...afterValueKeys]).sort();
-  return allSortedUniqKeys;
+  return _.uniq([...beforeValueKeys, ...afterValueKeys]).sort();
 };
 
-const makeDiffArr = (keys, beforeData, afterData) => {
-  const diff = [];
-  keys.forEach((key) => {
-    if (_.has(beforeData, key) && _.has(afterData, key)) {
-      const beforeValue = beforeData[key];
-      const afterValue = afterData[key];
-      if (beforeValue instanceof Object && afterValue instanceof Object) {
-        const allSortedUniqKeys = prepareKeys(beforeValue, afterValue);
-        diff.push({
-          name: key,
-          status: 'unchanged',
-          value: makeDiffArr(allSortedUniqKeys, beforeValue, afterValue),
-        });
-      } else if (beforeValue === afterValue) {
-        diff.push({ name: key, status: 'unchanged', value: makeArrFromChildren(beforeValue) });
-      } else {
-        diff.push({ name: key, status: 'added', value: makeArrFromChildren(afterValue) });
-        diff.push({ name: key, status: 'deleted', value: makeArrFromChildren(beforeValue) });
-      }
-    } else if (_.has(afterData, key)) {
-      const afterValue = afterData[key];
-      diff.push({ name: key, status: 'added', value: makeArrFromChildren(afterValue) });
+const makeDiffArr = (keys, beforeData, afterData) => (keys.reduce((acc, key) => {
+  if (_.has(beforeData, key) && _.has(afterData, key)) {
+    const beforeValue = beforeData[key];
+    const afterValue = afterData[key];
+    if (beforeValue instanceof Object && afterValue instanceof Object) {
+      const allSortedUniqKeys = prepareKeys(beforeValue, afterValue);
+      acc.push({
+        name: key,
+        status: 'unchanged',
+        children: makeDiffArr(allSortedUniqKeys, beforeValue, afterValue),
+      });
+    } else if (beforeValue === afterValue) {
+      acc.push(makeArrFromChildren(key, 'unchanged', beforeValue));
     } else {
-      const beforeValue = beforeData[key];
-      diff.push({ name: key, status: 'deleted', value: makeArrFromChildren(beforeValue) });
+      acc.push(makeArrFromChildren(key, 'added', afterValue));
+      acc.push(makeArrFromChildren(key, 'deleted', beforeValue));
     }
-  });
-  return diff;
-};
+  } else if (_.has(afterData, key)) {
+    const afterValue = afterData[key];
+    acc.push(makeArrFromChildren(key, 'added', afterValue));
+  } else {
+    const beforeValue = beforeData[key];
+    acc.push(makeArrFromChildren(key, 'deleted', beforeValue));
+  }
+  return acc.flat();
+}, []));
+
 
 const findDiff = (pathToBeforeFile, pathToAfterFile, format) => {
   const parsedDataBeforeFile = parse(pathToBeforeFile);

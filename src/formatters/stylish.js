@@ -18,16 +18,20 @@ const formStringFromObject = (key, value, tab, sign) => `${tab}${sign}${key}: ${
 
 const addElemInResultArr = (elem, tab) => {
   const elemInfo = [];
-  const { name, value, status } = elem;
-  const child = value[0];
-  if (child instanceof Object) {
+  const {
+    name,
+    value,
+    status,
+    children,
+  } = elem;
+  if (children) {
     elemInfo.push(formStringFromObject(name, beginSymbol, tab, signOfValue[status]));
     // eslint-disable-next-line no-use-before-define
-    elemInfo.push(formatDiff(value, `${tab}${relativeTabForChild}`));
+    elemInfo.push(formatDiff(children, `${tab}${relativeTabForChild}`));
     elemInfo.push(`${tab}${relativeTabForEndSymbol}${endSymbol}`);
     return elemInfo.join('\n');
   }
-  elemInfo.push(`${formStringFromObject(name, child, tab, signOfValue[status])}`);
+  elemInfo.push(`${formStringFromObject(name, value, tab, signOfValue[status])}`);
   return elemInfo.join('\n');
 };
 

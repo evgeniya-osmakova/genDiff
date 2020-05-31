@@ -8,7 +8,7 @@ const formStringFromObject = (key, value, action) => `Property '${key}' ${action
 
 const formResultArr = (preparatoryArr) => {
   const addedKeys = [];
-  const resultArr = preparatoryArr.reduce((acc, elem, index) => {
+  return preparatoryArr.reduce((acc, elem, index) => {
     const { status, key, value } = elem;
     if (!addedKeys.includes(key)) {
       addedKeys.push(key);
@@ -30,35 +30,33 @@ const formResultArr = (preparatoryArr) => {
     }
     return acc;
   }, []);
-  return resultArr;
 };
 
 const makeObjFromElemData = (elem, path) => {
-  const { name, status } = elem;
+  const {
+    name,
+    status,
+    children,
+    value,
+  } = elem;
   path.push(name);
-  const child = elem.value[0];
   const elemFullPath = path.join('.');
-  if (child instanceof Object) {
+  if (children) {
     return { key: elemFullPath, status, value: '[complex value]' };
   }
-  if (typeof child === 'string') {
-    return { key: elemFullPath, status, value: `'${child}'` };
+  if (typeof value === 'string') {
+    return { key: elemFullPath, status, value: `'${value}'` };
   }
-  return { key: elemFullPath, status, value: child };
+  return { key: elemFullPath, status, value };
 };
 
 const getElemDataWithFullPath = (elem, path = []) => {
-  const { name, value, status } = elem;
+  const { name, status, children } = elem;
   if (status !== 'unchanged') {
     return makeObjFromElemData(elem, path);
   }
-  if (value.length > 1 || value[0] instanceof Object) {
-    const fullPaths = value.map((child) => {
-      if (child instanceof Object) {
-        return getElemDataWithFullPath(child, [...path, ...[name]]);
-      }
-      return [];
-    });
+  if (children) {
+    const fullPaths = children.map((child) => getElemDataWithFullPath(child, [...path, ...[name]]));
     return fullPaths.flat();
   }
   return [];
