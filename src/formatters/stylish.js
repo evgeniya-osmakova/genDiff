@@ -1,51 +1,65 @@
-const signOfValue = {
-  unchanged: '  ',
-  deleted: '- ',
-  added: '+ ',
-};
-
-const beginSymbol = '{';
-
-const endSymbol = '}';
+import _ from 'lodash';
 
 const firstTab = '  ';
 
 const relativeTabForChild = `${firstTab.repeat(2)}`;
 
-const relativeTabForEndSymbol = signOfValue.unchanged;
+// eslint-disable-next-line no-use-before-define
+const findChildrenData = (children, tab) => `{\n${children.map((child) => chooseNodeType[child.status](child, `${tab}${relativeTabForChild}`))
+  .join('\n')}\n${tab}  }`;
 
-const formStringFromObject = (key, value, tab, sign) => `${tab}${sign}${key}: ${value}`;
+const makeStringFromData = (tab, sign, name, value) => `${tab}${sign}${name}: ${value}`;
 
-const addElemInResultArr = (elem, tab) => {
-  const elemInfo = [];
-  const {
-    name,
-    value,
-    status,
-    children,
-  } = elem;
+const unchangedNode = (node, tab) => {
+  const { name, value, children } = node;
   if (children) {
-    elemInfo.push(formStringFromObject(name, beginSymbol, tab, signOfValue[status]));
-    // eslint-disable-next-line no-use-before-define
-    elemInfo.push(formatDiff(children, `${tab}${relativeTabForChild}`));
-    elemInfo.push(`${tab}${relativeTabForEndSymbol}${endSymbol}`);
-    return elemInfo.join('\n');
+    return makeStringFromData(tab, '  ', name, findChildrenData(children, tab));
   }
-  elemInfo.push(`${formStringFromObject(name, value, tab, signOfValue[status])}`);
-  return elemInfo.join('\n');
+  return makeStringFromData(tab, '  ', name, value);
 };
 
-const formatDiff = (diff, tab) => {
-  const formattedDiff = diff.map((elem) => addElemInResultArr(elem, tab));
+const changedNode = (node, tab) => {
+  const { name, addedValue, deletedValue } = node;
+  if (_.isObject(addedValue)) {
+    if (_.isObject(deletedValue)) {
+      return `${makeStringFromData(tab, '+ ', name, findChildrenData(addedValue, tab))}\n${makeStringFromData(tab, '- ', name, findChildrenData(deletedValue, tab))}`;
+    }
+    return `${makeStringFromData(tab, '+ ', name, findChildrenData(addedValue, tab))}\n${makeStringFromData(tab, '- ', name, deletedValue)}`;
+  }
+  if (_.isObject(deletedValue)) {
+    return `${makeStringFromData(tab, '+ ', name, addedValue)}\n${makeStringFromData(tab, '- ', name, findChildrenData(deletedValue, tab))}`;
+  }
+  return `${makeStringFromData(tab, '+ ', name, addedValue)}\n${makeStringFromData(tab, '- ', name, deletedValue)}`;
+};
+
+const addedNode = (node, tab) => {
+  const { name, value, children } = node;
+  if (children) {
+    return makeStringFromData(tab, '+ ', name, findChildrenData(children, tab));
+  }
+  return makeStringFromData(tab, '+ ', name, value);
+};
+
+const deletedNode = (node, tab) => {
+  const { name, value, children } = node;
+  if (children) {
+    return makeStringFromData(tab, '- ', name, findChildrenData(children, tab));
+  }
+  return makeStringFromData(tab, '- ', name, value);
+};
+
+const chooseNodeType = {
+  unchanged: unchangedNode,
+  deleted: deletedNode,
+  added: addedNode,
+  changed: changedNode,
+};
+
+const formatDiff = (diff) => {
+  const formattedDiff = diff.map((elem) => chooseNodeType[elem.status](elem, firstTab));
   return formattedDiff.join('\n');
 };
 
-const makeStylishFormat = (diff) => {
-  const StylishFormattedResult = [beginSymbol];
-  const formattedDiff = formatDiff(diff, firstTab);
-  StylishFormattedResult.push(formattedDiff);
-  StylishFormattedResult.push(endSymbol);
-  return StylishFormattedResult.join('\n');
-};
+const makeStylishFormat = (diff) => `{\n${formatDiff(diff)}\n}`;
 
 export default makeStylishFormat;

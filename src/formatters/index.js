@@ -4,9 +4,9 @@ import makeStylishFormat from './stylish.js';
 import makeJSONFormat from './json.js';
 
 const listOfFormats = {
-  plain: (diff) => makePlainFormat(diff),
-  stylish: (diff) => makeStylishFormat(diff),
-  json: (diff) => makeJSONFormat(diff),
+  plain: makePlainFormat,
+  stylish: makeStylishFormat,
+  json: makeJSONFormat,
 };
 
 const formatDiff = (diff, format) => {

@@ -4,7 +4,7 @@ install:
 publish:
 	npm publish --dry-run
 
-genDiff:
+gendiff:
 	node bin/genDiff.js
 
 lint:

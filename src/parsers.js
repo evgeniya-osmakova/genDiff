@@ -5,10 +5,10 @@ import fs from 'fs';
 import path from 'path';
 
 const formats = {
-  '.yaml': (data) => yaml.safeLoad(data),
-  '.yml': (data) => yaml.safeLoad(data),
-  '.json': (data) => JSON.parse(data),
-  '.ini': (data) => ini.parse(data),
+  '.yaml': yaml.safeLoad,
+  '.yml': yaml.safeLoad,
+  '.json': JSON.parse,
+  '.ini': ini.parse,
 };
 
 const parse = (pathToFile) => {

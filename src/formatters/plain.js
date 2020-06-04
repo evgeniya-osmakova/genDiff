@@ -1,80 +1,47 @@
-const actionList = {
-  deleted: 'was deleted',
-  added: 'was added with value: ',
-  changed: 'was changed ',
-};
+import _ from 'lodash';
 
-const formStringFromObject = (key, value, action) => `Property '${key}' ${action}${value}`;
-
-const formResultArr = (preparatoryArr) => {
-  const addedKeys = [];
-  return preparatoryArr.reduce((acc, elem, index) => {
-    const { status, key, value } = elem;
-    if (!addedKeys.includes(key)) {
-      addedKeys.push(key);
-      const nextElem = preparatoryArr[index + 1];
-      if (nextElem) {
-        const nextElemKey = preparatoryArr[index + 1].key;
-        if (key === nextElemKey) {
-          const nextElemValue = preparatoryArr[index + 1].value;
-          const changedValue = `from ${nextElemValue} to ${value}`;
-          acc.push(formStringFromObject(key, changedValue, actionList.changed));
-          return acc;
-        }
-      }
-      if (status === 'deleted') {
-        acc.push(formStringFromObject(key, '', actionList[status]));
-      } else {
-        acc.push(formStringFromObject(key, value, actionList[status]));
-      }
-    }
-    return acc;
-  }, []);
-};
-
-const makeObjFromElemData = (elem, path) => {
-  const {
-    name,
-    status,
-    children,
-    value,
-  } = elem;
-  path.push(name);
-  const elemFullPath = path.join('.');
+const unchangedNode = (path, node) => {
+  const { children } = node;
   if (children) {
-    return { key: elemFullPath, status, value: '[complex value]' };
+    // eslint-disable-next-line no-use-before-define
+    const childrenData = children.map((child) => chooseNodeType[child.status]([`${path}.${child.name}`], child));
+    const filteredChildrenData = childrenData.filter((elem) => elem.length > 0);
+    return filteredChildrenData.join('\n');
   }
-  if (typeof value === 'string') {
-    return { key: elemFullPath, status, value: `'${value}'` };
-  }
-  return { key: elemFullPath, status, value };
+  return '';
 };
 
-const getElemDataWithFullPath = (elem, path = []) => {
-  const { name, status, children } = elem;
-  if (status !== 'unchanged') {
-    return makeObjFromElemData(elem, path);
-  }
-  if (children) {
-    const fullPaths = children.map((child) => getElemDataWithFullPath(child, [...path, ...[name]]));
-    return fullPaths.flat();
-  }
-  return [];
+const addedNode = (path, node) => {
+  const { value, children } = node;
+  const formattedValue = (typeof value === 'string') ? `'${value}'` : value;
+  const checkedObjValue = (children) ? '[complex value]' : formattedValue;
+  return `Property '${path.join('.')}' was added with value: ${checkedObjValue}`;
 };
 
-const prepareArr = (diff) => {
-  const preparatoryArr = diff.reduce((acc, elem) => {
-    const elemDataWithFullPath = getElemDataWithFullPath(elem);
-    acc.push(elemDataWithFullPath);
-    return acc;
-  }, []);
-  return preparatoryArr.flat();
+const deletedNode = (path) => `Property '${path.join('.')}' was deleted`;
+
+const changedNode = (path, node) => {
+  const { deletedValue, addedValue } = node;
+  const formattedDeletedValue = (typeof deletedValue === 'string') ? `'${deletedValue}'` : deletedValue;
+  const formattedAddedValue = (typeof addedValue === 'string') ? `'${addedValue}'` : addedValue;
+  const checkedObjDelValue = (_.isObject(deletedValue)) ? '[complex value]' : formattedDeletedValue;
+  const checkedObjAddValue = (_.isObject(addedValue)) ? '[complex value]' : formattedAddedValue;
+  return `Property '${path.join('.')}' was changed from ${checkedObjDelValue} to ${checkedObjAddValue}`;
 };
 
-const makePlainFormat = (diff) => {
-  const preparatoryArr = prepareArr(diff);
-  const plainFormattedResult = formResultArr(preparatoryArr);
-  return plainFormattedResult.join('\n');
+const chooseNodeType = {
+  unchanged: unchangedNode,
+  deleted: deletedNode,
+  added: addedNode,
+  changed: changedNode,
 };
+
+const formatDiff = (diff) => {
+  const formattedDiff = diff.map((elem) => chooseNodeType[elem.status]([elem.name], elem));
+  const filteredFormattedDiff = formattedDiff.filter((elem) => elem.length > 0);
+  return filteredFormattedDiff.join('\n');
+};
+
+const makePlainFormat = (diff) => formatDiff(diff);
 
 export default makePlainFormat;
