@@ -8,8 +8,11 @@
 
 
 Utility for finding differences in two configuration files (JSON, YAML, INI).
+
 Three types of difference file format: stylish(default), plain, json.
+
 Options:
+
     -V, --version        output the version number
     -h, --help           output usage information
     -f, --format [type]  output format
