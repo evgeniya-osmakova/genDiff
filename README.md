@@ -9,6 +9,18 @@
 
 Utility for finding differences in two configuration files (JSON, YAML, INI).
 
+Publish package:
+
+    make publish
+
+Install package:
+
+    npm link
+    
+Run package:
+
+    gendiff
+
 Three types of difference file format: stylish(default), plain, json.
 
 Options:
