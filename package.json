@@ -3,9 +3,11 @@
   "version": "1.0.0",
   "description": "genDiff",
   "main": "bin/genDiff.js",
+  "bin": {
+    "gendiff": "bin/genDiff.js"
+  },
   "scripts": {
-    "test": "npx -n --experimental-vm-modules jest",
-    "genDiff": "bin/genDiff.js"
+    "test": "npx -n --experimental-vm-modules jest"
   },
   "repository": {
     "type": "git",
