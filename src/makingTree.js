@@ -1,6 +1,6 @@
 import _ from 'lodash';
 
-const makeTree = (beforeData, afterData) => {
+const makingTree = (beforeData, afterData) => {
   const allKeys = _.union(_.keys(beforeData), _.keys(afterData));
   const allSortedUniqKeys = _.uniq(allKeys).sort();
   return allSortedUniqKeys.map((key) => {
@@ -11,7 +11,7 @@ const makeTree = (beforeData, afterData) => {
         return {
           name: key,
           status: 'withChildren',
-          children: makeTree(beforeValue, afterValue).flat(),
+          children: makingTree(beforeValue, afterValue).flat(),
         };
       }
       if (beforeValue === afterValue) {
@@ -31,4 +31,4 @@ const makeTree = (beforeData, afterData) => {
   });
 };
 
-export default makeTree;
+export default makingTree;

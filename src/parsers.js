@@ -1,8 +1,6 @@
 import _ from 'lodash';
 import yaml from 'js-yaml';
 import ini from 'ini';
-import fs from 'fs';
-import path from 'path';
 
 const formats = {
   '.yaml': yaml.safeLoad,
@@ -11,9 +9,7 @@ const formats = {
   '.ini': ini.parse,
 };
 
-const parse = (pathToFile) => {
-  const data = fs.readFileSync(pathToFile, 'utf-8');
-  const extname = path.extname(pathToFile);
+const parse = (data, extname) => {
   if (!_.has(formats, extname)) {
     throw new Error(`Unknown type of file: ${extname}`);
   }
