@@ -14,23 +14,23 @@ describe('Different files & formats:', () => {
   let testResults;
 
   const testData = [
-    ['json', 'beforeJSON.json', 'afterYAML.yaml', 0],
-    ['stylish', 'beforeYAML.yml', 'afterINI.ini', 1],
-    ['plain', 'beforeINI.ini', 'afterJSON.json', 2],
+    ['json', 'beforeJSON.json', 'afterJSON.json'],
+    ['stylish', 'beforeYAML.yml', 'afterYAML.yaml'],
+    ['plain', 'beforeINI.ini', 'afterINI.ini'],
   ]
 
   beforeAll(() => {
-    const preparatoryData = ['jsonResult.txt', 'stylishResult.txt', 'plainResult.txt'];
-    testResults = preparatoryData.map((fileNameOfResultFile) => {
-      const pathToResultFile = getFixturePath(fileNameOfResultFile);
-      return fs.readFileSync(pathToResultFile,'utf-8').trim();
-    })
+    testResults = {
+      json: fs.readFileSync(getFixturePath('jsonResult.txt'),'utf-8').trim(),
+      stylish: fs.readFileSync(getFixturePath('stylishResult.txt'),'utf-8').trim(),
+      plain: fs.readFileSync(getFixturePath('plainResult.txt'),'utf-8').trim(),
+    }
   });
 
-  test.each(testData)('test %s format', (format, fileNameOfBeforeFile, fileNameOfAfterFile, index) => {
+  test.each(testData)('test %s format', (format, fileNameOfBeforeFile, fileNameOfAfterFile) => {
     const pathToBeforeFile = getFixturePath(fileNameOfBeforeFile);
     const pathToAfterFile = getFixturePath(fileNameOfAfterFile);
-    const result = testResults[index];
+    const result = testResults[format];
     expect(findDiff(pathToBeforeFile, pathToAfterFile, format)).toBe(result);
   });
 });

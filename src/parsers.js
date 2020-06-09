@@ -9,11 +9,11 @@ const formats = {
   '.ini': ini.parse,
 };
 
-const parse = (data, extname) => {
-  if (!_.has(formats, extname)) {
-    throw new Error(`Unknown type of file: ${extname}`);
+const parse = (data, dataType) => {
+  if (!_.has(formats, dataType)) {
+    throw new Error(`Unknown type of file: ${dataType}`);
   }
-  return formats[extname](data);
+  return formats[dataType](data);
 };
 
 export default parse;
