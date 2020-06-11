@@ -1,9 +1,8 @@
 import _ from 'lodash';
 
 const makeTree = (beforeData, afterData) => {
-  const allKeys = _.union(_.keys(beforeData), _.keys(afterData));
-  const allSortedUniqKeys = _.uniq(allKeys).sort();
-  return allSortedUniqKeys.map((key) => {
+  const allKeys = _.union(_.keys(beforeData), _.keys(afterData)).sort();
+  return allKeys.map((key) => {
     const beforeValue = beforeData[key];
     const afterValue = afterData[key];
     if (_.has(afterData, key) && !_.has(beforeData, key)) {
@@ -16,7 +15,7 @@ const makeTree = (beforeData, afterData) => {
       return {
         name: key,
         status: 'nested',
-        children: makeTree(beforeValue, afterValue).flat(),
+        children: makeTree(beforeValue, afterValue),
       };
     }
     if (beforeValue === afterValue) {

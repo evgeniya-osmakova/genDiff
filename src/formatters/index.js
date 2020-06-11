@@ -1,12 +1,11 @@
 import _ from 'lodash';
 import makePlainFormat from './plain.js';
 import makeStylishFormat from './stylish.js';
-import makeJSONFormat from './json.js';
 
 const listOfFormats = {
   plain: makePlainFormat,
   stylish: makeStylishFormat,
-  json: makeJSONFormat,
+  json: JSON.stringify,
 };
 
 const formatDiff = (diff, format) => {

@@ -1,21 +1,24 @@
 import _ from 'lodash';
 
+const stringify = (path, node) => {
+  if (!node) {
+    return `Property '${path.join('.')}' was deleted`;
+  }
+  const { value, deletedValue, addedValue } = node;
+  const formatData = (data) => {
+    const formattedData = (typeof data === 'string') ? `'${data}'` : data;
+    return (_.isObject(data)) ? '[complex value]' : formattedData;
+  };
+  if (!_.has(node, 'value')) {
+    return `Property '${path.join('.')}' was changed from ${formatData(deletedValue)} to ${formatData(addedValue)}`;
+  }
+  return `Property '${path.join('.')}' was added with value: ${formatData(value)}`;
+};
+
 const mappingNodeType = {
-  deleted: (path) => `Property '${path.join('.')}' was deleted`,
-  added: (path, node) => {
-    const { value } = node;
-    const formattedValue = (typeof value === 'string') ? `'${value}'` : value;
-    const checkedObjValue = (_.isObject(value)) ? '[complex value]' : formattedValue;
-    return `Property '${path.join('.')}' was added with value: ${checkedObjValue}`;
-  },
-  changed: (path, node) => {
-    const { deletedValue, addedValue } = node;
-    const formattedDeletedValue = (typeof deletedValue === 'string') ? `'${deletedValue}'` : deletedValue;
-    const formattedAddedValue = (typeof addedValue === 'string') ? `'${addedValue}'` : addedValue;
-    const checkedObjDelValue = (_.isObject(deletedValue)) ? '[complex value]' : formattedDeletedValue;
-    const checkedObjAddValue = (_.isObject(addedValue)) ? '[complex value]' : formattedAddedValue;
-    return `Property '${path.join('.')}' was changed from ${checkedObjDelValue} to ${checkedObjAddValue}`;
-  },
+  deleted: (path) => stringify(path),
+  added: (path, node) => stringify(path, node),
+  changed: (path, node) => stringify(path, node),
   nested: (path, node) => {
     const { children } = node;
     const filteredChildren = children.filter(({ status }) => status !== 'unchanged');
@@ -24,12 +27,10 @@ const mappingNodeType = {
   },
 };
 
-const formatDiff = (diff) => {
+const makePlainFormat = (diff) => {
   const filteredDiff = diff.filter(({ status }) => status !== 'unchanged');
   const formattedDiff = filteredDiff.map((elem) => mappingNodeType[elem.status]([elem.name], elem));
   return formattedDiff.join('\n');
 };
-
-const makePlainFormat = (diff) => formatDiff(diff);
 
 export default makePlainFormat;
