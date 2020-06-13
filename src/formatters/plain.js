@@ -1,24 +1,17 @@
 import _ from 'lodash';
 
-const stringify = (path, node) => {
-  if (!node) {
-    return `Property '${path.join('.')}' was deleted`;
-  }
-  const { value, deletedValue, addedValue } = node;
-  const formatData = (data) => {
-    const formattedData = (typeof data === 'string') ? `'${data}'` : data;
-    return (_.isObject(data)) ? '[complex value]' : formattedData;
-  };
-  if (!_.has(node, 'value')) {
-    return `Property '${path.join('.')}' was changed from ${formatData(deletedValue)} to ${formatData(addedValue)}`;
-  }
-  return `Property '${path.join('.')}' was added with value: ${formatData(value)}`;
+const stringify = (value) => {
+  const formattedData = (typeof value === 'string') ? `'${value}'` : value;
+  return (_.isObject(value)) ? '[complex value]' : formattedData;
 };
 
 const mappingNodeType = {
-  deleted: (path) => stringify(path),
-  added: (path, node) => stringify(path, node),
-  changed: (path, node) => stringify(path, node),
+  deleted: (path) => `Property '${path.join('.')}' was deleted`,
+  added: (path, { value }) => `Property '${path.join('.')}' was added with value: ${stringify(value)}`,
+  changed: (path, node) => {
+    const { addedValue, deletedValue } = node;
+    return `Property '${path.join('.')}' was changed from ${stringify(deletedValue)} to ${stringify(addedValue)}`;
+  },
   nested: (path, node) => {
     const { children } = node;
     const filteredChildren = children.filter(({ status }) => status !== 'unchanged');

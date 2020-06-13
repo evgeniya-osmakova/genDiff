@@ -2,42 +2,41 @@ import _ from 'lodash';
 
 const firstTab = '  ';
 
-const relativeTabForChild = `${firstTab.repeat(2)}`;
-
-const stringify = (tab, sign, name, value) => {
-  if (_.isObject(value)) {
-    const childTab = `${tab}${relativeTabForChild}`;
-    const keys = _.keys(value);
-    const arrFromObj = keys.map((key) => {
-      const objValue = value[key];
-      return stringify(childTab, '  ', key, objValue);
-    });
-    return `${tab}${sign}${name}: {\n${arrFromObj.join('\n')}\n${tab}  }`;
+const stringify = (sign, name, value, treeDepth) => {
+  const tab = `${firstTab.repeat(treeDepth * 2 + 1)}`;
+  if (!_.isObject(value)) {
+    return `${tab}${sign}${name}: ${value}`;
   }
-  return `${tab}${sign}${name}: ${value}`;
+  if (value.length > 0) {
+    // eslint-disable-next-line no-use-before-define
+    const arr = ['{', value.map((child) => mappingNodeType[child.status](child, treeDepth + 1)).join('\n'), `${tab}  }`];
+    const childrenValue = arr.join('\n');
+    return stringify('  ', name, childrenValue, treeDepth);
+  }
+  const keys = _.keys(value);
+  const arrFromObj = keys.map((key) => {
+    const objValue = value[key];
+    return stringify('  ', key, objValue, treeDepth + 1);
+  });
+  const resultArr = [`${tab}${sign}${name}: {`, `${arrFromObj.join('\n')}`, `${tab}  }`];
+  return resultArr.join('\n');
 };
 
-
 const mappingNodeType = {
-  unchanged: ({ name, value }, tab) => stringify(tab, '  ', name, value),
-  deleted: ({ name, value }, tab) => stringify(tab, '- ', name, value),
-  added: ({ name, value }, tab) => stringify(tab, '+ ', name, value),
-  nested: ({ name, children }, tab) => {
-    const value = `{\n${children.map((child) => mappingNodeType[child.status](child,
-      `${tab}${relativeTabForChild}`))
-      .join('\n')}\n${tab}  }`;
-    return stringify(tab, '  ', name, value);
-  },
-  changed: (node, tab) => {
+  unchanged: ({ name, value }, treeDepth) => stringify('  ', name, value, treeDepth),
+  deleted: ({ name, value }, treeDepth) => stringify('- ', name, value, treeDepth),
+  added: ({ name, value }, treeDepth) => stringify('+ ', name, value, treeDepth),
+  nested: ({ name, children }, treeDepth) => stringify('  ', name, children, treeDepth),
+  changed: (node, treeDepth) => {
     const { name, addedValue, deletedValue } = node;
-    return `${mappingNodeType.added({ name, value: addedValue },
-      tab)}\n${mappingNodeType.deleted({ name, value: deletedValue }, tab)}`;
+    const strFromAddedValue = mappingNodeType.added({ name, value: addedValue }, treeDepth);
+    const strFromDeletedValue = mappingNodeType.deleted({ name, value: deletedValue }, treeDepth);
+    return [strFromAddedValue, strFromDeletedValue].join('\n');
   },
 };
 
 const makeStylishFormat = (diff) => {
-  const formattedDiff = diff.map((elem) => mappingNodeType[elem.status](elem, firstTab));
-  console.log(`{\n${formattedDiff.join('\n')}\n}`);
+  const formattedDiff = diff.map((elem) => mappingNodeType[elem.status](elem, 0));
   return `{\n${formattedDiff.join('\n')}\n}`;
 };
 

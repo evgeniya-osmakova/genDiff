@@ -14,9 +14,15 @@ describe('Different files & formats:', () => {
   let testResults;
 
   const testData = [
-    ['json', 'beforeJSON.json', 'afterJSON.json'],
-    ['stylish', 'beforeYAML.yml', 'afterYAML.yaml'],
-    ['plain', 'beforeINI.ini', 'afterINI.ini'],
+    ['json', 'json'],
+    ['stylish', 'json'],
+    ['plain', 'json'],
+    ['json', 'yaml'],
+    ['stylish', 'yaml'],
+    ['plain', 'yaml'],
+    ['json', 'ini'],
+    ['stylish', 'ini'],
+    ['plain', 'ini'],
   ]
 
   beforeAll(() => {
@@ -27,9 +33,9 @@ describe('Different files & formats:', () => {
     }
   });
 
-  test.each(testData)('test %s format', (format, fileNameOfBeforeFile, fileNameOfAfterFile) => {
-    const pathToBeforeFile = getFixturePath(fileNameOfBeforeFile);
-    const pathToAfterFile = getFixturePath(fileNameOfAfterFile);
+  test.each(testData)('test %s format %s data', (format, type) => {
+    const pathToBeforeFile = getFixturePath(`before_${type}.${type}`);
+    const pathToAfterFile = getFixturePath(`after_${type}.${type}`);
     const result = testResults[format];
     expect(findDiff(pathToBeforeFile, pathToAfterFile, format)).toBe(result);
   });
@@ -44,8 +50,8 @@ describe('Errors:', () => {
   });
 
   test('wrong format', () => {
-    const pathToBeforeFile = getFixturePath('beforeJSON.json');
-    const pathToAfterFile = getFixturePath('afterJSON.json');
+    const pathToBeforeFile = getFixturePath('before_json.json');
+    const pathToAfterFile = getFixturePath('after_json.json');
     expect(() => findDiff(pathToBeforeFile, pathToAfterFile, 'undefined')).toThrowError();
   });
 });
