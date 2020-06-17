@@ -7,19 +7,16 @@ const stringify = (sign, name, value, treeDepth) => {
   if (!_.isObject(value)) {
     return `${tab}${sign}${name}: ${value}`;
   }
-  if (value.length > 0) {
+  const a = (Array.isArray(value))
     // eslint-disable-next-line no-use-before-define
-    const arr = ['{', value.map((child) => mappingNodeType[child.status](child, treeDepth + 1)).join('\n'), `${tab}  }`];
-    const childrenValue = arr.join('\n');
-    return stringify('  ', name, childrenValue, treeDepth);
-  }
-  const keys = _.keys(value);
-  const arrFromObj = keys.map((key) => {
-    const objValue = value[key];
-    return stringify('  ', key, objValue, treeDepth + 1);
-  });
-  const resultArr = [`${tab}${sign}${name}: {`, `${arrFromObj.join('\n')}`, `${tab}  }`];
-  return resultArr.join('\n');
+    ? value.map((child) => mappingNodeType[child.status](child, treeDepth + 1))
+    : _.keys(value).map((key) => stringify('  ', key, value[key], treeDepth + 1));
+  const result = [
+    stringify(sign, name, '{', treeDepth),
+    a.join('\n'),
+    `${tab}  }`,
+  ];
+  return result.join('\n');
 };
 
 const mappingNodeType = {

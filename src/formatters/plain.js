@@ -14,16 +14,17 @@ const mappingNodeType = {
   },
   nested: (path, node) => {
     const { children } = node;
-    const filteredChildren = children.filter(({ status }) => status !== 'unchanged');
-    const childrenData = filteredChildren.map((child) => mappingNodeType[child.status]([`${path}.${child.name}`], child));
-    return childrenData.join('\n');
+    const childrenData = children.map((child) => mappingNodeType[child.status]([`${path}.${child.name}`], child));
+    const filteredChildrenData = childrenData.filter((elem) => elem !== null);
+    return filteredChildrenData.join('\n');
   },
+  unchanged: () => null,
 };
 
 const makePlainFormat = (diff) => {
-  const filteredDiff = diff.filter(({ status }) => status !== 'unchanged');
-  const formattedDiff = filteredDiff.map((elem) => mappingNodeType[elem.status]([elem.name], elem));
-  return formattedDiff.join('\n');
+  const formattedDiff = diff.map((elem) => mappingNodeType[elem.status]([elem.name], elem));
+  const filteredFormattedDif = formattedDiff.filter((elem) => elem !== null);
+  return filteredFormattedDif.join('\n');
 };
 
 export default makePlainFormat;

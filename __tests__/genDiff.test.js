@@ -13,17 +13,7 @@ const getFixturePath = (filePath) => path.join(__dirname, '..', '__fixtures__', 
 describe('Different files & formats:', () => {
   let testResults;
 
-  const testData = [
-    ['json', 'json'],
-    ['stylish', 'json'],
-    ['plain', 'json'],
-    ['json', 'yaml'],
-    ['stylish', 'yaml'],
-    ['plain', 'yaml'],
-    ['json', 'ini'],
-    ['stylish', 'ini'],
-    ['plain', 'ini'],
-  ]
+  const testData = [['json'], ['yaml'], ['ini']];
 
   beforeAll(() => {
     testResults = {
@@ -33,11 +23,12 @@ describe('Different files & formats:', () => {
     }
   });
 
-  test.each(testData)('test %s format %s data', (format, type) => {
+  test.each(testData)('test %s format %s data', (type) => {
     const pathToBeforeFile = getFixturePath(`before_${type}.${type}`);
     const pathToAfterFile = getFixturePath(`after_${type}.${type}`);
-    const result = testResults[format];
-    expect(findDiff(pathToBeforeFile, pathToAfterFile, format)).toBe(result);
+    expect(findDiff(pathToBeforeFile, pathToAfterFile, 'json')).toBe(testResults.json);
+    expect(findDiff(pathToBeforeFile, pathToAfterFile, 'stylish')).toBe(testResults.stylish);
+    expect(findDiff(pathToBeforeFile, pathToAfterFile, 'plain')).toBe(testResults.plain);
   });
 });
 
