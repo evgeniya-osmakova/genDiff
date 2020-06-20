@@ -6,17 +6,19 @@ const iniParse = (data) => {
   const parsedData = ini.parse(data);
   const checkNumbers = (obj) => {
     const keys = _.keys(obj);
-    keys.forEach((key) => {
+    return keys.reduce((acc, key) => {
       const value = obj[key];
       if (_.isObject(value)) {
-        checkNumbers(value);
+        acc[key] = checkNumbers(value);
+        return acc;
       }
       if (Number(value) && typeof value !== 'boolean') {
-        // eslint-disable-next-line no-param-reassign
-        obj[key] = Number(value);
+        acc[key] = Number(value);
+        return acc;
       }
-    });
-    return obj;
+      acc[key] = obj[key];
+      return acc;
+    }, {});
   };
   return checkNumbers(parsedData);
 };

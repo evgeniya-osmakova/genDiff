@@ -14,16 +14,16 @@ const mappingNodeType = {
   },
   nested: (path, node) => {
     const { children } = node;
-    const childrenData = children.map((child) => mappingNodeType[child.status]([`${path}.${child.name}`], child));
-    const filteredChildrenData = childrenData.filter((elem) => elem !== null);
-    return filteredChildrenData.join('\n');
+    // eslint-disable-next-line no-use-before-define
+    return makePlainFormat(children, path);
   },
-  unchanged: () => null,
+  unchanged: () => [],
 };
 
-const makePlainFormat = (diff) => {
-  const formattedDiff = diff.map((elem) => mappingNodeType[elem.status]([elem.name], elem));
-  const filteredFormattedDif = formattedDiff.filter((elem) => elem !== null);
+const makePlainFormat = (diff, path = '') => {
+  const formattedDiff = diff.map((elem) => mappingNodeType[elem.status]([...path, elem.name],
+    elem));
+  const filteredFormattedDif = formattedDiff.filter((elem) => elem.length > 0);
   return filteredFormattedDif.join('\n');
 };
 

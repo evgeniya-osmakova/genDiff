@@ -14,7 +14,7 @@
     "url": "git+https://github.com/evgeniya-osmakova/frontend-project-lvl2.git"
   },
   "keywords": [
-    "JSON"
+    "JSON, YAML, INI"
   ],
   "author": "Evgeniya Osmakova",
   "license": "ISC",

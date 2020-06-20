@@ -13,7 +13,7 @@ const getFixturePath = (filePath) => path.join(__dirname, '..', '__fixtures__', 
 describe('Different files & formats:', () => {
   let testResults;
 
-  const testData = [['json'], ['yaml'], ['ini']];
+  const testData = ['json', 'yaml', 'ini'];
 
   beforeAll(() => {
     testResults = {
@@ -31,7 +31,6 @@ describe('Different files & formats:', () => {
     expect(findDiff(pathToBeforeFile, pathToAfterFile, 'plain')).toBe(testResults.plain);
   });
 });
-
 
 describe('Errors:', () => {
   test('wrong extname', () => {
