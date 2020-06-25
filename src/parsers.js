@@ -9,15 +9,12 @@ const iniParse = (data) => {
     return keys.reduce((acc, key) => {
       const value = obj[key];
       if (_.isObject(value)) {
-        acc[key] = checkNumbers(value);
-        return acc;
+        return { ...acc, [key]: checkNumbers(value) };
       }
       if (Number(value) && typeof value !== 'boolean') {
-        acc[key] = Number(value);
-        return acc;
+        return { ...acc, [key]: Number(value) };
       }
-      acc[key] = obj[key];
-      return acc;
+      return { ...acc, [key]: obj[key] };
     }, {});
   };
   return checkNumbers(parsedData);
