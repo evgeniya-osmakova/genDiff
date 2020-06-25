@@ -38,11 +38,9 @@ const makeStylishFormat = (diff) => {
       }
       return mappingNodeType[elem.status](elem, treeDepth);
     });
-    const strFromFormattedDiff = formattedDiff.join('\n');
-    const resultArr = (treeDepth === 0) ? ['{', strFromFormattedDiff, '}'] : formattedDiff;
-    return resultArr.join('\n');
+    return formattedDiff.join('\n');
   };
-  return iter(diff, 0);
+  return ['{', iter(diff, 0), '}'].join('\n');
 };
 
 export default makeStylishFormat;
