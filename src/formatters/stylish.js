@@ -45,8 +45,10 @@ const mappingNodeType = {
 };
 
 const iter = (innerData, treeDepth) => {
-  const formattedDiff = innerData.flatMap((elem) => mappingNodeType[elem.status](elem,
-    treeDepth, elem.status));
+  const formattedDiff = innerData.flatMap((elem) => {
+    const { status } = elem;
+    return mappingNodeType[status](elem, treeDepth, status);
+  });
   return formattedDiff.join('\n');
 };
 
