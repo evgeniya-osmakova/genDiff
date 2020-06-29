@@ -16,38 +16,36 @@ const makeAST = (data) => {
   });
 };
 
-const stringify = (sign, name, value, depth) => {
+const stringify = (sign, name, value, depth, fn) => {
   const tab = `${firstTab.repeat(depth * 2 + 1)}`;
   if (!_.isObject(value)) {
     return `${tab}${sign}${name}: ${value}`;
   }
-  // eslint-disable-next-line no-use-before-define
-  return stringify(sign, name, iter(makeAST(value), depth + 1), depth);
+  return stringify(sign, name, fn(makeAST(value), depth + 1), depth);
 };
 
 const mappingNodeType = {
-  unchanged: ({ name, value }, depth) => stringify('  ', name, value, depth),
-  deleted: ({ name, value }, depth) => stringify('- ', name, value, depth),
-  added: ({ name, value }, depth) => stringify('+ ', name, value, depth),
-  // eslint-disable-next-line no-use-before-define
-  nested: ({ name, children }, depth) => stringify('  ', name, iter(children, depth + 1), depth),
-  changed: (node, depth) => {
-    const { name, addedValue, deletedValue } = node;
-    const strFromAddedValue = mappingNodeType.added({ name, value: addedValue }, depth);
-    const strFromDeletedValue = mappingNodeType.deleted({ name, value: deletedValue }, depth);
+  unchanged: ({ name, value }, depth, fn) => stringify('  ', name, value, depth, fn),
+  deleted: ({ name, value }, depth, fn) => stringify('- ', name, value, depth, fn),
+  added: ({ name, value }, depth, fn) => stringify('+ ', name, value, depth, fn),
+  nested: ({ name, children }, depth, fn) => stringify('  ', name, fn(children, depth + 1), depth, fn),
+  changed: ({ name, addedValue, deletedValue }, depth, fn) => {
+    const strFromAddedValue = mappingNodeType.added({ name, value: addedValue }, depth, fn);
+    const strFromDeletedValue = mappingNodeType.deleted({ name, value: deletedValue }, depth, fn);
     return [strFromAddedValue, strFromDeletedValue];
   },
 };
 
-const iter = (innerData, treeDepth) => {
-  const formattedDiff = innerData.flatMap((elem) => {
-    const { status } = elem;
-    return mappingNodeType[status](elem, treeDepth);
-  });
-  const tab = `${firstTab.repeat(treeDepth * 2)}`;
-  return ['{', formattedDiff.join('\n'), `${tab}}`].join('\n');
+const makeStylishFormat = (diff) => {
+  const iter = (innerData, treeDepth) => {
+    const formattedDiff = innerData.flatMap((elem) => {
+      const { status } = elem;
+      return mappingNodeType[status](elem, treeDepth, iter);
+    });
+    const tab = `${firstTab.repeat(treeDepth * 2)}`;
+    return ['{', formattedDiff, `${tab}}`].flat().join('\n');
+  };
+  return iter(diff, 0);
 };
-
-const makeStylishFormat = (diff) => iter(diff, 0);
 
 export default makeStylishFormat;

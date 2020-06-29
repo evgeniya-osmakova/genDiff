@@ -12,21 +12,21 @@ const mappingNodeType = {
     const { addedValue, deletedValue } = node;
     return `Property '${path.join('.')}' was changed from ${stringify(deletedValue)} to ${stringify(addedValue)}`;
   },
-  nested: (path, node) => {
+  nested: (path, node, fn) => {
     const { children } = node;
-    // eslint-disable-next-line no-use-before-define
-    return iter(children, path);
+    return fn(children, path);
   },
   unchanged: () => [],
 };
 
-const iter = (innerData, elemPath) => {
-  const formattedDiff = innerData.flatMap(
-    (elem) => mappingNodeType[elem.status]([...elemPath, elem.name], elem),
-  );
-  return formattedDiff.join('\n');
+const makePlainFormat = (diff) => {
+  const iter = (innerData, elemPath) => {
+    const formattedDiff = innerData.flatMap(
+      (elem) => mappingNodeType[elem.status]([...elemPath, elem.name], elem, iter),
+    );
+    return formattedDiff.join('\n');
+  };
+  return iter(diff, '');
 };
-
-const makePlainFormat = (diff) => iter(diff, '');
 
 export default makePlainFormat;
