@@ -9,33 +9,28 @@ const makeAST = (data) => {
     return (_.isObject(value))
       ? {
         name: key,
-        status: 'unchanged',
+        status: 'nested',
         children: makeAST(value),
       }
       : { name: key, status: 'unchanged', value };
   });
 };
 
-const stringify = (sign, name, value, depth, status) => {
+const stringify = (sign, name, value, depth) => {
   const tab = `${firstTab.repeat(depth * 2 + 1)}`;
   if (!_.isObject(value)) {
     return `${tab}${sign}${name}: ${value}`;
   }
-  const formattedValue = (status === 'nested') ? value : makeAST(value);
-  const result = [
-    stringify(sign, name, '{', depth),
-    // eslint-disable-next-line no-use-before-define
-    iter(formattedValue, depth + 1),
-    `${tab}  }`,
-  ];
-  return result.join('\n');
+  // eslint-disable-next-line no-use-before-define
+  return stringify(sign, name, iter(makeAST(value), depth + 1), depth);
 };
 
 const mappingNodeType = {
   unchanged: ({ name, value }, depth) => stringify('  ', name, value, depth),
   deleted: ({ name, value }, depth) => stringify('- ', name, value, depth),
   added: ({ name, value }, depth) => stringify('+ ', name, value, depth),
-  nested: ({ name, children, status }, depth) => stringify('  ', name, children, depth, status),
+  // eslint-disable-next-line no-use-before-define
+  nested: ({ name, children }, depth) => stringify('  ', name, iter(children, depth + 1), depth),
   changed: (node, depth) => {
     const { name, addedValue, deletedValue } = node;
     const strFromAddedValue = mappingNodeType.added({ name, value: addedValue }, depth);
@@ -47,11 +42,12 @@ const mappingNodeType = {
 const iter = (innerData, treeDepth) => {
   const formattedDiff = innerData.flatMap((elem) => {
     const { status } = elem;
-    return mappingNodeType[status](elem, treeDepth, status);
+    return mappingNodeType[status](elem, treeDepth);
   });
-  return formattedDiff.join('\n');
+  const tab = `${firstTab.repeat(treeDepth * 2)}`;
+  return ['{', formattedDiff.join('\n'), `${tab}}`].join('\n');
 };
 
-const makeStylishFormat = (diff) => ['{', iter(diff, 0), '}'].join('\n');
+const makeStylishFormat = (diff) => iter(diff, 0);
 
 export default makeStylishFormat;

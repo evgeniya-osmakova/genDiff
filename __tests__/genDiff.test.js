@@ -30,6 +30,11 @@ describe('Different files & formats:', () => {
     expect(findDiff(pathToBeforeFile, pathToAfterFile, 'stylish')).toBe(testResults.stylish);
     expect(findDiff(pathToBeforeFile, pathToAfterFile, 'plain')).toBe(testResults.plain);
   });
+  // test('wrong extname', () => {
+  //   const pathToBeforeFile = getFixturePath('1.json');
+  //   const pathToAfterFile = getFixturePath('2.json');
+  //   expect(findDiff(pathToBeforeFile, pathToAfterFile, 'stylish')).toBe(fs.readFileSync(getFixturePath('3res.txt'),'utf-8').trim(),);
+  // });
 });
 
 describe('Errors:', () => {
