@@ -2,37 +2,28 @@ import _ from 'lodash';
 
 const firstTab = '  ';
 
-const makeAST = (data) => {
-  const keys = _.keys(data);
-  return keys.map((key) => {
-    const value = data[key];
-    return (_.isObject(value))
-      ? {
-        name: key,
-        status: 'nested',
-        children: makeAST(value),
-      }
-      : { name: key, status: 'unchanged', value };
-  });
-};
-
-const stringify = (sign, name, value, depth, fn) => {
+const stringify = (sign, name, value, depth) => {
   const tab = `${firstTab.repeat(depth * 2 + 1)}`;
   if (!_.isObject(value)) {
     return `${tab}${sign}${name}: ${value}`;
   }
+  const keys = _.keys(value);
   // eslint-disable-next-line no-use-before-define
-  return mappingNodeType.nested({ name, children: makeAST(value) }, depth, fn, sign);
+  const arrFromObj = keys.map((key) => mappingNodeType.unchanged(
+    { name: key, value: value[key] }, depth + 1,
+  ));
+  const formattedValue = ['{', arrFromObj, `${tab}  }`].flat().join('\n');
+  return stringify(sign, name, formattedValue, depth);
 };
 
 const mappingNodeType = {
-  unchanged: ({ name, value }, depth, fn) => stringify('  ', name, value, depth, fn),
-  deleted: ({ name, value }, depth, fn) => stringify('- ', name, value, depth, fn),
-  added: ({ name, value }, depth, fn) => stringify('+ ', name, value, depth, fn),
-  nested: ({ name, children }, depth, fn, sign = '  ') => stringify(sign, name, fn(children, depth + 1), depth, fn),
-  changed: ({ name, addedValue, deletedValue }, depth, fn) => {
-    const strFromAddedValue = mappingNodeType.added({ name, value: addedValue }, depth, fn);
-    const strFromDeletedValue = mappingNodeType.deleted({ name, value: deletedValue }, depth, fn);
+  unchanged: ({ name, value }, depth) => stringify('  ', name, value, depth),
+  deleted: ({ name, value }, depth) => stringify('- ', name, value, depth),
+  added: ({ name, value }, depth) => stringify('+ ', name, value, depth),
+  nested: ({ name, children }, depth, fn) => stringify('  ', name, fn(children, depth + 1), depth),
+  changed: ({ name, addedValue, deletedValue }, depth) => {
+    const strFromAddedValue = mappingNodeType.added({ name, value: addedValue }, depth);
+    const strFromDeletedValue = mappingNodeType.deleted({ name, value: deletedValue }, depth);
     return [strFromAddedValue, strFromDeletedValue];
   },
 };
