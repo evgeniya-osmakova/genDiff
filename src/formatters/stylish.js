@@ -21,14 +21,15 @@ const stringify = (sign, name, value, depth, fn) => {
   if (!_.isObject(value)) {
     return `${tab}${sign}${name}: ${value}`;
   }
-  return stringify(sign, name, fn(makeAST(value), depth + 1), depth);
+  // eslint-disable-next-line no-use-before-define
+  return mappingNodeType.nested({ name, children: makeAST(value) }, depth, fn, sign);
 };
 
 const mappingNodeType = {
   unchanged: ({ name, value }, depth, fn) => stringify('  ', name, value, depth, fn),
   deleted: ({ name, value }, depth, fn) => stringify('- ', name, value, depth, fn),
   added: ({ name, value }, depth, fn) => stringify('+ ', name, value, depth, fn),
-  nested: ({ name, children }, depth, fn) => stringify('  ', name, fn(children, depth + 1), depth, fn),
+  nested: ({ name, children }, depth, fn, sign = '  ') => stringify(sign, name, fn(children, depth + 1), depth, fn),
   changed: ({ name, addedValue, deletedValue }, depth, fn) => {
     const strFromAddedValue = mappingNodeType.added({ name, value: addedValue }, depth, fn);
     const strFromDeletedValue = mappingNodeType.deleted({ name, value: deletedValue }, depth, fn);
