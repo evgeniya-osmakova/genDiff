@@ -12,9 +12,9 @@ const mappingNodeType = {
     const { addedValue, deletedValue } = node;
     return `Property '${path.join('.')}' was changed from ${stringify(deletedValue)} to ${stringify(addedValue)}`;
   },
-  nested: (path, node, fn) => {
+  nested: (path, node, iter) => {
     const { children } = node;
-    return fn(children, path);
+    return iter(children, path);
   },
   unchanged: () => [],
 };
