@@ -5,7 +5,7 @@ const stringify = (value) => {
   return (_.isObject(value)) ? '[complex value]' : formattedData;
 };
 
-const mappingNodeType = {
+const mapping = {
   deleted: (path) => `Property '${path.join('.')}' was deleted`,
   added: (path, { value }) => `Property '${path.join('.')}' was added with value: ${stringify(value)}`,
   changed: (path, node) => {
@@ -22,7 +22,7 @@ const mappingNodeType = {
 const makePlainFormat = (diff) => {
   const iter = (innerData, elemPath) => {
     const formattedDiff = innerData.flatMap(
-      (elem) => mappingNodeType[elem.status]([...elemPath, elem.name], elem, iter),
+      (elem) => mapping[elem.status]([...elemPath, elem.name], elem, iter),
     );
     return formattedDiff.join('\n');
   };

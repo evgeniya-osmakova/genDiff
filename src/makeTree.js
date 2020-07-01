@@ -1,7 +1,7 @@
 import _ from 'lodash';
 
 const makeTree = (beforeData, afterData) => {
-  const allKeys = _.union(_.keys(beforeData), _.keys(afterData)).sort();
+  const allKeys = _.union(Object.keys(beforeData), Object.keys(afterData)).sort();
   return allKeys.map((key) => {
     const beforeValue = beforeData[key];
     const afterValue = afterData[key];
