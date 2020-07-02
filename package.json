@@ -2,7 +2,6 @@
   "name": "hexletprj2",
   "version": "1.0.0",
   "description": "genDiff",
-  "main": "src/index.js",
   "bin": {
     "gendiff": "bin/genDiff.js"
   },
