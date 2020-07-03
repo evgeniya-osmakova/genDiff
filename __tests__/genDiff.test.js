@@ -1,11 +1,18 @@
 import path, { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
-import {test, expect, beforeAll, describe} from '@jest/globals';
+import {
+  test,
+  expect,
+  beforeAll,
+  describe,
+} from '@jest/globals';
 import findDiff from '../src/index.js';
 
+// eslint-disable-next-line no-underscore-dangle
 const __filename = fileURLToPath(import.meta.url);
 
+// eslint-disable-next-line no-underscore-dangle
 const __dirname = dirname(__filename);
 
 const getFixturePath = (filePath) => path.join(__dirname, '..', '__fixtures__', filePath);
@@ -17,10 +24,10 @@ describe('Different files & formats:', () => {
 
   beforeAll(() => {
     testResults = {
-      json: fs.readFileSync(getFixturePath('jsonResult.txt'),'utf-8').trim(),
-      stylish: fs.readFileSync(getFixturePath('stylishResult.txt'),'utf-8').trim(),
-      plain: fs.readFileSync(getFixturePath('plainResult.txt'),'utf-8').trim(),
-    }
+      json: fs.readFileSync(getFixturePath('jsonResult.txt'), 'utf-8').trim(),
+      stylish: fs.readFileSync(getFixturePath('stylishResult.txt'), 'utf-8').trim(),
+      plain: fs.readFileSync(getFixturePath('plainResult.txt'), 'utf-8').trim(),
+    };
   });
 
   test.each(testData)('test %s format %s data', (type) => {
