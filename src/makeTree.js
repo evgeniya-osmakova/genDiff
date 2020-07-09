@@ -5,10 +5,10 @@ const makeTree = (beforeData, afterData) => {
   return allKeys.map((key) => {
     const beforeValue = beforeData[key];
     const afterValue = afterData[key];
-    if (_.has(afterData, key) && !_.has(beforeData, key)) {
+    if (!_.has(beforeData, key)) {
       return { name: key, status: 'added', value: afterValue };
     }
-    if (_.has(beforeData, key) && !_.has(afterData, key)) {
+    if (!_.has(afterData, key)) {
       return { name: key, status: 'deleted', value: beforeValue };
     }
     if (_.isObject(beforeValue) && _.isObject(afterValue)) {
